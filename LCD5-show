@@ -10,6 +10,16 @@ sudo ./system_backup.sh
 #sudo echo "hdmi_force_hotplug=1" >> ./boot/config.txt.bak
 #fi
 
+# Check if /boot/firmware/config.txt exists
+if [ -f "/boot/firmware/config.txt" ]; then
+    CONFIG_PATH="/boot/firmware/config.txt"
+else
+    CONFIG_PATH="/boot/config.txt"
+fi
+
+# Create a backup of the config file
+sudo cp -rf "$CONFIG_PATH" ./boot/config.txt.bak
+
 sudo cp ./usr/ads7846-overlay.dtb /boot/overlays/ads7846.dtbo
 
 source ./system_config.sh
@@ -35,7 +45,7 @@ sudo echo "hdmi_drive=1" >> ./boot/config.txt.bak
 sudo echo "hdmi_cvt 800 480 60 6 0 0 0" >> ./boot/config.txt.bak
 sudo echo "dtoverlay=ads7846,cs=1,penirq=25,penirq_pull=2,speed=50000,keep_vref_on=0,swapxy=0,pmax=255,xohms=150,xmin=200,xmax=3900,ymin=200,ymax=3900" >> ./boot/config.txt.bak
 
-sudo cp -rf ./boot/config.txt.bak /boot/config.txt
+sudo cp -rf ./boot/config.txt.bak "$CONFIG_PATH"
 
 #sudo cp -rf ./boot/config-5.txt /boot/config.txt 
 #if test "$root_dev" = "/dev/mmcblk0p7";then

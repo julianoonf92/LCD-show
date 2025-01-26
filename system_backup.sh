@@ -35,15 +35,22 @@ sudo rm -rf /boot/overlays/$str.dtbo
 fi
 fi
 
-root_dev=`grep -oPr "root=[^\s]*" /boot/cmdline.txt | awk -F= '{printf $NF}'`
-sudo cp -rf /boot/config.txt ./.system_backup
-sudo cp -rf /boot/cmdline.txt ./.system_backup/
-if test "$root_dev" = "/dev/mmcblk0p7";then
-sudo cp -rf ./boot/config-noobs-nomal.txt /boot/config.txt
-#sudo cp -rf ./usr/cmdline.txt-noobs-original /boot/cmdline.txt
+# Check if /boot/firmware/config.txt exists
+if [ -f "/boot/firmware/config.txt" ]; then
+    CONFIG_PATH="/boot/firmware/config.txt"
 else
-sudo cp -rf ./boot/config-nomal.txt /boot/config.txt
-#sudo cp -rf ./usr/cmdline.txt-original /boot/cmdline.txt
+    CONFIG_PATH="/boot/config.txt"
+fi
+
+# Backup the config file
+sudo cp -rf "$CONFIG_PATH" ./.system_backup/config.txt
+
+root_dev=`grep -oPr "root=[^\s]*" /boot/cmdline.txt | awk -F= '{printf $NF}'`
+sudo cp -rf /boot/cmdline.txt ./.system_backup/
+if test "$root_dev" = "/dev/mmcblk0p7"; then
+    sudo cp -rf ./boot/config-noobs-nomal.txt "$CONFIG_PATH"
+else
+    sudo cp -rf ./boot/config-nomal.txt "$CONFIG_PATH"
 fi
 if [ -f /usr/share/X11/xorg.conf.d/99-fbturbo.conf ]; then
 sudo cp -rf /usr/share/X11/xorg.conf.d/99-fbturbo.conf ./.system_backup/

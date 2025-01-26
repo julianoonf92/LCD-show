@@ -18,20 +18,27 @@ sudo cp -rf ./.system_backup/40-libinput.conf /etc/X11/xorg.conf.d
 fi
 fi
 
-result=`grep -rn "^dtoverlay=" /boot/config.txt | grep ":rotate=" | tail -n 1`
+# Check if /boot/firmware/config.txt exists
+if [ -f "/boot/firmware/config.txt" ]; then
+    CONFIG_PATH="/boot/firmware/config.txt"
+else
+    CONFIG_PATH="/boot/config.txt"
+fi
+
+result=`grep -rn "^dtoverlay=" "$CONFIG_PATH" | grep ":rotate=" | tail -n 1`
 if [ $? -eq 0 ]; then
-str=`echo -n $result | awk -F: '{printf $2}' | awk -F= '{printf $NF}'`
-sudo rm -rf /boot/overlays/$str-overlay.dtb
-sudo rm -rf /boot/overlays/$str.dtbo
+    str=`echo -n $result | awk -F: '{printf $2}' | awk -F= '{printf $NF}'`
+    sudo rm -rf /boot/overlays/$str-overlay.dtb
+    sudo rm -rf /boot/overlays/$str.dtbo
 fi
 ls -al ./.system_backup/*.dtb > /dev/null 2>&1 && sudo cp -rf ./.system_backup/*.dtb  /boot/overlays/
 ls -al ./.system_backup/*.dtbo > /dev/null 2>&1 && sudo cp -rf ./.system_backup/*.dtbo  /boot/overlays/
 
-if [ -f ./.system_backup/99-fbturbo.conf ];then
-sudo cp -rf ./.system_backup/99-fbturbo.conf /usr/share/X11/xorg.conf.d
+if [ -f ./.system_backup/99-fbturbo.conf ]; then
+    sudo cp -rf ./.system_backup/99-fbturbo.conf /usr/share/X11/xorg.conf.d
 fi
 sudo cp -rf ./.system_backup/cmdline.txt /boot/
-sudo cp -rf ./.system_backup/config.txt /boot/
+sudo cp -rf ./.system_backup/config.txt "$CONFIG_PATH"
 sudo cp -rf ./.system_backup/rc.local /etc/
 sudo cp -rf ./.system_backup/modules /etc/
 
